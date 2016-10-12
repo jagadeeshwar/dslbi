@@ -1,0 +1,200 @@
+<!DOCTYPE html>
+
+<html>
+
+<head>
+	<meta charset="utf-8"/>
+	<title>Tasks CRUD</title>
+	<script>document.write('<base href="' + document.location + '" />');</script>
+	<link rel="stylesheet" href="http://getbootstrap.com/2.3.2/assets/css/bootstrap.css">
+	<script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.2.4/angular.js"></script>
+	<script src="http://code.angularjs.org/1.2.4/angular-route.js"></script>
+	<script type="text/javascript" src="http://cdnjs.cloudflare.com/ajax/libs/underscore.js/1.4.4/underscore-min.js"></script>
+	<script type="text/javascript" src="restangular.js"></script>
+	<script type="text/javascript" src="underscore.js"></script>
+	<script src="tasksapp.js"></script>
+</head>
+
+<body ng-app="tasks">
+
+<div ng-view></div>
+
+<!-- CACHE FILE: tasks.list.html -->
+<script type="text/ng-template" id="tasks.list.html">
+	<!--<input type="text" ng-model="search" class="search-query" placeholder="Search">-->
+
+	<h3>Tasks</h3>
+	<table class="table table-hover">
+		<thead>
+		<tr>
+			<th id="id"></th>
+		    <th id="id">Sl.No.</th>
+            <th id="Item">Item</th>
+            <th id="Details">Details</th>
+            <th id="status">status</th>
+            <th id="owner" >owner</th>
+            <th id="ResolvedDate" >ResolvedDate</th>
+            <th id="TargetDate" >TargetDate</th>
+            <th id="Flag" >Flag</th>
+            <th id="SignOff" >Sign Off</th>
+            <th id="Comments" >Comments</th>			
+            <th><a href="#/new"><i class="icon-plus-sign"></i></a></th>
+		</tr>
+		</thead>
+		<tbody>
+		
+		<tr ng-repeat="task in tasks | orderBy:'SNO'" ng-show="task._id">
+			<td>
+				<a href="#/edit/{{task._id}}"><i class="icon-pencil"></i></a>
+			</td>
+			<td>{{task.SNO}}</td>
+			<td>{{task.Item}}</td>
+			<td>{{task.Details}}</td>
+			<td>{{task.Status}}</td>
+            <td>owner</th>
+            <td>ResolvedDate</td>
+            <td>TargetDate</td>
+			<td>{{task.Flag}}</td>
+			<td>Sign Off</td>
+			<td>{{task.Comments}}</td>
+		</tr>
+		
+		</tbody>
+	</table>
+
+</script>
+
+<!-- CACHE FILE: tasks.detail.html -->
+<script type="text/ng-template" id="tasks.detail.html">
+	<form name="myForm" class="form-horizontal">
+
+		<div class="control-group" ng-class="{error: myForm.Item.$invalid}">
+			<label class="control-label" for="Item">Item</label>
+
+			<div class="controls">
+				<input type="text" name="Item" ng-model="task.Item" required>
+			</div>
+		</div>
+
+		<div class="control-group" ng-class="{error: myForm.comments.$invalid}">
+			<label class="control-label" for="comments">Comments</label>
+
+			<div class="controls">
+				<textarea name="comments" ng-model="task.Comments" required></textarea>
+			</div>
+		</div>
+
+		<div class="control-group" ng-class="{error: myForm.status.$invalid}">
+			<label class="control-label" for="Status">Status</label>
+
+			<div class="controls">
+					<select ng-model="statusSelected" ng-options="status.name for status in statuslist">
+					 </select>
+					   Currently selected: {{ {selected_status:statusSelected} }}
+
+				<!--<select ng-model="task.Status" required name="status"
+				        ng-options="Status._id as Status.name for Status in status">
+				</select>-->
+				<!--<select ng-model="task.Status" required name="Status">
+				  <option value="Complete">Complete</option>
+				  <option value="Pending">Pending</option>
+				  <option value="InProgress">InProgress</option>
+			  	  <option value="YetToStart">YetToStart</option>
+				</select>-->
+				
+			</div>
+		</div>
+
+		<br>
+		<a href="#/" class="btn">Cancel</a>
+		<button ng-click="save()" ng-disabled="isClean() || myForm.$invalid"
+		        class="btn btn-primary">Save
+		</button>
+		<button ng-click="destroy()"
+		        ng-show="task._id" class="btn btn-danger">Delete
+		</button>
+	</form>
+	<pre>$scope.task = {{task|json}}</pre>
+</script>
+
+
+<!-- CACHE FILE: tasks.new.html -->
+<script type="text/ng-template"  id="tasks.new.html">
+	<form name="myForm" class="form-horizontal">
+	<table class="table table-hover">
+		<thead>
+		<!--<tr>
+			<th id="id">
+		</tr>	
+		<thead>	
+		<tbody>
+		<tr ng-repeat="task in tasks | orderBy:'SNO'" ng-show="task.SNO">
+			<td>SNO is {{task.SNO}}</td>
+		</tr>-->
+		
+		</tbody>
+	</table>
+	
+	
+	<div class="control-group" ng-class="{error: myForm.SNO.$invalid}">
+			<label class="control-label" for="SNO">SNO</label>
+			<div class="controls">
+					  {{tasks.length + 1}}
+					  <input type="text" ng-name="task.SNO" ng-init="task.SNO='{{tasks.length + 1}}'">
+			</div>
+			<label class="control-label" for="SNO">ID</label>
+			<div class="controls">
+			<input type="number" name="_id" ng-model="task._id" required>
+			</div>
+			
+		</div>
+	
+		<div class="control-group" ng-class="{error: myForm.Item.$invalid}">
+			<label class="control-label" for="Item">Item</label>
+
+			<div class="controls">
+				<input type="text" name="Item" ng-model="task.Item" required>
+			</div>
+		</div>
+
+		<div class="control-group" ng-class="{error: myForm.comments.$invalid}">
+			<label class="control-label" for="comments">Comments</label>
+
+			<div class="controls">
+				<textarea name="comments" ng-model="task.Comments" required></textarea>
+			</div>
+		</div>
+
+		<div class="control-group" ng-class="{error: myForm.status.$invalid}">
+			<label class="control-label" for="Status">Status</label>
+
+			<div class="controls">
+					
+				<select ng-model="task.Status" required name="Status">
+				  <option value="Complete">Complete</option>
+				  <option value="Pending">Pending</option>
+				  <option value="InProgress">InProgress</option>
+			  	  <option value="YetToStart">YetToStart</option>
+				</select>
+				
+			</div>
+		</div>
+
+	
+			<br>
+		<a href="#/" class="btn">Cancel</a>
+		<button ng-click="save()" ng-disabled="isClean() || myForm.$invalid"
+		        class="btn btn-primary">Save
+		</button>
+		<button ng-click="destroy()"
+		        ng-show="task._id" class="btn btn-danger">Delete
+		</button>
+		
+	</form>
+
+
+	<pre>$scope.task = {{task|json}}</pre>
+	<pre>$scope.task._id = {{task._id + 1}}</pre>
+	<pre>$scope.SNONew = {{tasks.length + 1}}</pre>
+</script>
+</body>
